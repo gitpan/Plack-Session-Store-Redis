@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Plack-Session-Store-Redis
-version:            0.01
+version:            0.02
 abstract:           Redis based session store for Plack apps.
 author:
     - Lee Aylward <leedo@cpan.org>
