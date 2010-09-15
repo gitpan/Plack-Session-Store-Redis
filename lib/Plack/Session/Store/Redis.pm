@@ -7,7 +7,7 @@ use parent 'Plack::Session::Store';
 use Redis;
 use JSON;
 
-use Plack::Util::Accessor qw/prefix redis expire server/;
+use Plack::Util::Accessor qw/prefix redis expires server/;
 
 =head1 NAME
 
@@ -15,11 +15,11 @@ Plack::Session::Store::Redis - Redis based session store for Plack apps.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 
 =head1 SYNOPSIS
@@ -37,7 +37,9 @@ our $VERSION = '0.02';
 
 =head1 DESCRIPTION
 
-This module will store Plack session data on a redis server.
+This module will store Plack session data on a redis server. NOTE:
+only works with redis 1.2.x, which appears to be a limitation of
+Redis.pm.
 
 =head1 METHODS
 
@@ -48,7 +50,7 @@ there are a few defaults that can be changed. You can set the IP
 address of the server with the 'host' option, and the port with
 'port'. By default all of the keys in Redis will be prefixed with
 "session", but this can be changed with the 'prefix' option. You
-can also provide an 'expire' option that will be used to set an
+can also provide an 'expires' option that will be used to set an
 expiration on the redis key.
 
 =cut
@@ -61,10 +63,10 @@ sub new {
             ($params{port} || 6379);
 
   my $self = {
-    prefix => $params{prefix} || 'session',
-    redis  => Redis->new(server => $server),
-    server => $server,
-    expire => $params{expire} || undef,
+    prefix  => $params{prefix} || 'session',
+    redis   => Redis->new(server => $server),
+    server  => $server,
+    expires => $params{expires} || undef,
   };
 
   bless $self, $class;
@@ -95,6 +97,10 @@ sub _exec {
     $ret = $self->redis->$command(@args);
   }
 
+  if ($self->expires and ($command eq "get" or $command eq "set")) {
+    $self->redis->expire($args[0], $self->expires);
+  }
+
   return $ret;
 }
 
@@ -108,10 +114,6 @@ sub store {
   my ($self, $session_id, $session_obj) = @_;
 
   $self->_exec("set", $session_id, encode_json $session_obj);
-
-  if ($self->expire) {
-    $self->_exec("expire", $session_id, $self->expire);
-  }
 }
 
 =head2 remove( $session_id )

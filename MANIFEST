@@ -1,5 +1,7 @@
+app.psgi
 Changes
 ignore.txt
+lib/Plack/Middleware/Session/Async.pm
 lib/Plack/Session/Store/.Redis.pm.swp
 lib/Plack/Session/Store/Redis.pm
 Makefile.PL

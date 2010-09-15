@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Plack-Session-Store-Redis
-version:            0.02
+version:            0.03
 abstract:           Redis based session store for Plack apps.
 author:
     - Lee Aylward <leedo@cpan.org>
@@ -11,6 +11,7 @@ configure_requires:
 build_requires:
     ExtUtils::MakeMaker:  0
 requires:
+    JSON:            0
     Plack:           0
     Plack::Session:  0
     Redis:           0
